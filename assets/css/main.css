@@ -72,6 +72,40 @@ input, select, textarea {
 	appearance: none;
 }
 
+/* ADDED CSS */
+
+/* Shadow for profile picture */
+.blob {
+  box-shadow: -3vmin 2vmin 0 rgba(0,0,0,0.05);
+}
+
+/* Style the dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+
+/* Style the dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #282828;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 0;
+    margin: 0;
+	border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Ensures corners are clipped */
+}
+
+
+/* Show the dropdown content on hover */
+.dropdown:hover .dropdown-content {
+    display: grid;
+}
+
 /* Basic */
 
 	html {
@@ -2044,8 +2078,7 @@ input, select, textarea {
 		width: 100%;
 		z-index: 10000;
 		cursor: default;
-		height: 3.5em;
-		line-height: 3.5em;
+		padding: 0.5em 0; /* Adjust padding as needed */
 	}
 
 		#nav ul {
@@ -2388,8 +2421,8 @@ input, select, textarea {
 		/* Nav */
 
 			#nav {
-				height: 44px;
-				line-height: 44px;
+				height: 80px;
+				line-height: 36px;
 			}
 
 				#nav a {
