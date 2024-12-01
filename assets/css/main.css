@@ -72,7 +72,7 @@ input, select, textarea {
 	appearance: none;
 }
 
-/* ADDED CSS */
+/****************************************ADDED CSS*******************************************************/
 
 /* Shadow for profile picture */
 .blob {
@@ -100,11 +100,64 @@ input, select, textarea {
     overflow: hidden; /* Ensures corners are clipped */
 }
 
-
 /* Show the dropdown content on hover */
 .dropdown:hover .dropdown-content {
     display: grid;
 }
+
+.experience-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.experience-item {
+    padding: 1.5em;
+    border-left: 4px solid #d3d3d3; /* Light border on the left */
+    position: relative;
+    text-align: left; /* Justify text to the left */
+}
+
+.experience-item::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: #8d8d8d; /* Light grey circle */
+    border-radius: 50%;
+    position: absolute;
+    top: 2.1em;
+    left: -6px;
+}
+
+.experience-item h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.experience-item p {
+    margin: 0.5em 0;
+    color: #666;
+}
+
+.experience-item ul {
+    margin: 0.5em 0 0 1em;
+    padding: 0;
+    list-style-type: disc;
+    color: #666;
+}
+
+.experience-item ul li {
+    margin-bottom: 0.5em;
+}
+
+
+/* Hide the button on medium and small screens */
+@media (max-width: 768px) {
+    #Experience header .button {
+        display: none;
+    }
+}
+
+/****************************************ADDED CSS*******************************************************/
 
 /* Basic */
 
@@ -1971,6 +2024,27 @@ input, select, textarea {
 			width: auto;
 		}
 
+/* Cert */
+
+.cert {
+	display: flex;
+	background: #fff;
+	box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	justify-content: center;
+	padding: 2em;
+}
+	.cert.style2 .image {
+		width: 10rem;
+	}
+
+	.cert.style2 .cert-name {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
 /* Icons */
 
 	.icon {
@@ -2008,7 +2082,7 @@ input, select, textarea {
 		}
 
 		.icon.featured {
-			color: #EA8A95;
+			color: #4394f0;
 			display: block;
 			margin: 0 0 1.5em 0;
 			cursor: default;
