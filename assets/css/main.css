@@ -157,6 +157,23 @@ input, select, textarea {
     }
 }
 
+.responsive-iframe-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 100%;
+    overflow: hidden;
+}
+
+.responsive-iframe-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
 /****************************************ADDED CSS*******************************************************/
 
 /* Basic */
@@ -2191,7 +2208,7 @@ input, select, textarea {
 		}
 
 			#nav a:hover {
-				color: #fff !important;
+				color: #4394f0 !important;
 				background: #383838;
 			}
 
@@ -2510,10 +2527,13 @@ input, select, textarea {
 					height: inherit;
 					line-height: inherit;
 					border-radius: 0;
+					color: inherit; /* Ensure the default text color is inherited */
+					text-decoration: none; /* Remove underline from links */
 				}
 
 					#nav a:hover {
 						background-color: transparent;
+						color: #4394f0;
 					}
 
 		/* Articles */
