@@ -1,0 +1,12 @@
+
+# nginx start docker command
+
+docker stop nginx  
+docker rm nginx
+docker run -d --name nginx --network portfolio-net -p 80:80 nginx
+
+
+docker stop nginx-exporter
+docker rm nginx-exporter
+docker run -d --name nginx-exporter --network portfolio-net -p 9113:9113 nginx/nginx-prometheus-exporter:1.4.0 \
+    --nginx.scrape-uri=http://portfolio-nginx:80/stub_status
