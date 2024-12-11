@@ -34,3 +34,6 @@ docker run -d \
   --network portfolio-net \
   -p 3000:3000 \
   grafana/grafana
+
+
+  #  https://grafana.com/tutorials/run-grafana-behind-a-proxy/
