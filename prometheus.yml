@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: 'nginx'
     static_configs:
-      - targets: ['localhost:9113/metrics']  # Replace with your NGINX Prometheus Exporter endpoint
+      - targets: ['localhost:9113']  # Replace with your NGINX Prometheus Exporter endpoint
