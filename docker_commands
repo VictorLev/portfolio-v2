@@ -1,6 +1,4 @@
-
 # nginx start docker command
-
 docker build --no-cache -t nginx ./web/
 docker stop nginx  
 docker rm nginx
