@@ -11,7 +11,7 @@ docker run -d --name nginx --network portfolio-net -p 80:80 nginx
 docker stop nginx-exporter
 docker rm nginx-exporter
 docker run -d --name nginx-exporter --network portfolio-net -p 9113:9113 nginx/nginx-prometheus-exporter:1.4.0 \
-    --nginx.scrape-uri=http://nginx:80/stub_status
+    --nginx.scrape-uri=http://nginx:80/stub_status -telemetry.address=0.0.0.0:9113
 
 
 # prometheus start docker command
@@ -19,12 +19,16 @@ docker stop prometheus
 docker rm prometheus
 docker run -d \
   --name prometheus \
+  --network portfolio-net \
   -p 9090:9090 \
   -v ./prometheus.yml:/etc/prometheus/prometheus.yml:ro \
   prom/prometheus
 
 # grafana start docker command
+docker stop grafana
+docker rm grafana
 docker run -d \
   --name grafana \
+  --network portfolio-net \
   -p 3000:3000 \
   grafana/grafana
