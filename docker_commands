@@ -1,11 +1,13 @@
 
 # nginx start docker command
 
+docker build --no-cache -t nginx ./web/
 docker stop nginx  
 docker rm nginx
 docker run -d --name nginx --network portfolio-net -p 80:80 nginx
 
 
+# nginx-exporter start docker command for prometheus
 docker stop nginx-exporter
 docker rm nginx-exporter
 docker run -d --name nginx-exporter --network portfolio-net -p 9113:9113 nginx/nginx-prometheus-exporter:1.4.0 \
