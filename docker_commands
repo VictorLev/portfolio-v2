@@ -31,7 +31,7 @@ docker stop grafana
 docker rm grafana
 docker run -d \
   --name grafana \
-  -e "GF_SERVER_ROOT_URL=http://localhost:3000/grafana" \
+  -v ./grafana.ini:/etc/grafana/grafana.ini \
   --network portfolio-net \
   -p 3000:3000 \
   grafana/grafana
