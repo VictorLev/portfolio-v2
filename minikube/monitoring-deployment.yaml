@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: monitoring-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: monitoring
@@ -18,9 +18,8 @@ spec:
           ports:
             - containerPort: 9113
           args:
-            - "-telemetry.address"                              # not sure about this
-            - "0.0.0.0:9113"                                    # not sure about this
-            - "--nginx.scrape-uri=http://nginx:80/stub_status"  # not sure about this
+            - "--web.listen-address=:9113"                              # not sure about this
+            - "--nginx.scrape-uri=http://nginx-service:80/stub_status"  # not sure about this
         - name: prometheus
           image: prom/prometheus
           ports:
