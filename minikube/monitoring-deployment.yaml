@@ -18,8 +18,8 @@ spec:
           ports:
             - containerPort: 9113
           args:
-            - "--web.listen-address=:9113"                             
-            - "--nginx.scrape-uri=http://nginx-service:80/stub_status"  
+            - "--web.listen-address=:9113"                              # not sure about this
+            - "--nginx.scrape-uri=http://nginx-service:80/stub_status"  # not sure about this
         - name: prometheus
           image: prom/prometheus
           ports:
@@ -45,7 +45,8 @@ spec:
           configMap:
             name: prometheus-config
         - name: prometheus-storage
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: prometheus-pvc  # Use a PVC for persistent storage
         - name: grafana-config
           configMap:
             name: grafana-config
