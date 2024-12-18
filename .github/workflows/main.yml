@@ -13,7 +13,7 @@ env:
 
 jobs:
   test-nginx:
-    runs-on: {{ env.LINUX_OS }}
+    runs-on: ${{ env.LINUX_OS }}
 
     steps:
       # Step 1: Checkout the repository
