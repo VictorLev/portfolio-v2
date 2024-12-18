@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-nginx:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # Step 1: Checkout the repository
@@ -23,24 +23,23 @@ jobs:
         run: |
           docker build -t portfolio:latest ${GITHUB_WORKSPACE}/web/
 
-      # Step 4: Set up Minikube
-      - name: Set up Minikube
-        uses: manusa/actions-setup-minikube@v2.6.0
-        with:
-          minikube-version: 'v1.31.2' # Use a specific Minikube version
-          kubernetes-version: 'v1.27.4' # Specify the Kubernetes version
-          driver: docker # Use the Docker driver for Minikube
+      # Step 4: Install Minikube (manually)
+      - name: Install Minikube
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/v1.31.2/minikube-linux-amd64
+          sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+          sudo chmod +x /usr/local/bin/minikube
 
       # Step 5: Start Minikube
       - name: Start Minikube
         run: |
-          minikube start --wait --profile=minikube-test
-          minikube status --profile=minikube-test
+          minikube start --wait --driver=docker --kubernetes-version=v1.27.4
+          minikube status
 
       # Step 6: Load Docker image into Minikube
       - name: Load Docker image into Minikube
         run: |
-          minikube image load portfolio:latest --profile=minikube-test
+          minikube image load portfolio:latest
 
       # Step 7: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
@@ -51,7 +50,7 @@ jobs:
       # Step 8: Expose the Nginx service (Minikube tunnel)
       - name: Expose Nginx Service
         run: |
-          minikube tunnel --profile=minikube-test &
+          minikube tunnel &
           sleep 10
 
       # Step 9: Test Nginx server
@@ -59,7 +58,7 @@ jobs:
         run: |
           # Get the exposed service IP
           NODE_PORT=$(kubectl get svc nginx-service -o=jsonpath='{.spec.ports[0].nodePort}')
-          MINIKUBE_IP=$(minikube ip --profile=minikube-test)
+          MINIKUBE_IP=$(minikube ip)
 
           # Test the /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
