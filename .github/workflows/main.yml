@@ -9,11 +9,10 @@ env:
   MINIKUBE_VERSION: "v1.31.2"
   KUBERNETES_VERSION: "v1.27.4"
   DOCKER_IMAGE: "portfolio:latest"
-  LINUX_OS: "ubuntu-20.04"
 
 jobs:
   test-nginx:
-    runs-on: ${{ env.LINUX_OS }}
+    runs-on: ubuntu-20.04
 
     steps:
       # Step 1: Checkout the repository
