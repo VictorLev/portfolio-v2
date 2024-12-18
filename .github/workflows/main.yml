@@ -5,9 +5,15 @@ on:
     paths:
       - "version" # Trigger the workflow when the "version" file changes
 
+env:
+  MINIKUBE_VERSION: "v1.31.2"
+  KUBERNETES_VERSION: "v1.27.4"
+  DOCKER_IMAGE: "portfolio:latest"
+  LINUX_OS: "ubuntu-20.04"
+
 jobs:
   test-nginx:
-    runs-on: ubuntu-20.04
+    runs-on: {{ env.LINUX_OS }}
 
     steps:
       # Step 1: Checkout the repository
@@ -21,26 +27,26 @@ jobs:
       # Step 3: Build Docker image
       - name: Build Docker image
         run: |
-          docker buildx build --load -t portfolio:latest ${GITHUB_WORKSPACE}/web/
+          docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
 
       # Step 4: Install Minikube (manually)
       - name: Install Minikube
         run: |
-          curl -LO https://storage.googleapis.com/minikube/releases/v1.31.2/minikube-linux-amd64
+          curl -LO https://storage.googleapis.com/minikube/releases/${{ env.MINIKUBE_VERSION }}/minikube-linux-amd64
           sudo mv minikube-linux-amd64 /usr/local/bin/minikube
           sudo chmod +x /usr/local/bin/minikube
 
       # Step 5: Start Minikube
       - name: Start Minikube
         run: |
-          minikube start --wait --driver=docker --kubernetes-version=v1.27.4
+          minikube start --wait --driver=docker --kubernetes-version=${{ env.KUBERNETES_VERSION }}
           minikube status
 
       # Step 6: Load Docker image into Minikube
       - name: Load Docker image into Minikube
         run: |
           eval $(minikube -p minikube docker-env)
-          minikube image load portfolio:latest
+          minikube image load ${{ env.DOCKER_IMAGE }}
 
       # Step 7: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
