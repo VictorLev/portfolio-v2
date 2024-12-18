@@ -1,1 +1,75 @@
+name: Test Nginx Server with Minikube
 
+on:
+  push:
+    paths:
+      - "version" # Trigger the workflow when the "version" file changes
+
+jobs:
+  test-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t portfolio:latest .
+
+      # Step 4: Set up Minikube
+      - name: Set up Minikube
+        uses: manusa/actions-setup-minikube@v2.6.0
+        with:
+          minikube-version: 'v1.31.2' # Use a specific Minikube version
+          kubernetes-version: 'v1.27.4' # Specify the Kubernetes version
+          driver: docker # Use the Docker driver for Minikube
+
+      # Step 5: Start Minikube
+      - name: Start Minikube
+        run: |
+          minikube start --wait --profile=minikube-test
+          minikube status --profile=minikube-test
+
+      # Step 6: Load Docker image into Minikube
+      - name: Load Docker image into Minikube
+        run: |
+          minikube image load portfolio:latest --profile=minikube-test
+
+      # Step 7: Apply Kubernetes manifests
+      - name: Apply ConfigMap and Deployment
+        run: |
+          kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
+          kubectl wait --for=condition=available deployment/nginx-deployment --timeout=60s
+
+      # Step 8: Expose the Nginx service (Minikube tunnel)
+      - name: Expose Nginx Service
+        run: |
+          minikube tunnel --profile=minikube-test &
+          sleep 10
+
+      # Step 9: Test Nginx server
+      - name: Run tests on Nginx
+        run: |
+          # Get the exposed service IP
+          NODE_PORT=$(kubectl get svc nginx-service -o=jsonpath='{.spec.ports[0].nodePort}')
+          MINIKUBE_IP=$(minikube ip --profile=minikube-test)
+
+          # Test the /en location
+          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
+          echo "Nginx /en is accessible"
+
+          # Test the /fr location
+          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ | grep -q "200" || exit 1
+          echo "Nginx /fr is accessible"
+
+      # Step 10: Clean up Minikube
+      - name: Clean up Minikube
+        run: |
+          minikube delete --profile=minikube-test
