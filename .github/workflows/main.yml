@@ -21,7 +21,7 @@ jobs:
       # Step 3: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t portfolio:latest ${GITHUB_WORKSPACE}/web/
+          docker buildx build --load -t portfolio:latest ${GITHUB_WORKSPACE}/web/
 
       # Step 4: Install Minikube (manually)
       - name: Install Minikube
