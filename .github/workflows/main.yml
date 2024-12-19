@@ -42,13 +42,14 @@ jobs:
           eval $(minikube -p minikube docker-env)
           docker build -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
           docker images
-          minikube image load ${{ env.DOCKER_IMAGE }}
+          minikube image load portfolio
           
 
       # Step 6: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
         run: |
           kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
+          kubectl wait --for=condition=available --timeout=120s deployment/nginx-deployment
           sleep 30
         
       # Step 7: Expose the Nginx service (Minikube tunnel)
