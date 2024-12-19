@@ -42,26 +42,13 @@ jobs:
           eval $(minikube -p minikube docker-env)
           docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
           minikube image load ${{ env.DOCKER_IMAGE }}
-      
-      - name: Minikube Logs
-        run: minikube logs
-
+          docker images
 
       # Step 6: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
         run: |
-          kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml --v=6
+          kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
           sleep 30
-      # Step 6.1: Debug Deployment Status
-      - name: Debug Deployment
-        run: |
-          kubectl describe deployment nginx-deployment
-          kubectl get pods -l app=nginx
-
-      # Step 6.2: Debug Pod Logs
-      - name: Debug Pod Logs
-        run: |
-          kubectl logs -l app=nginx || echo "No logs available"
         
       # Step 7: Expose the Nginx service (Minikube tunnel)
       - name: Expose Nginx Service
