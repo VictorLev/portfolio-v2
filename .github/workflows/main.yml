@@ -47,6 +47,7 @@ jobs:
       - name: Apply ConfigMap and Deployment
         run: |
           kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml --v=6
+          kubectl wait --for=condition=available --timeout=60s deployment/nginx-deployment
       - name: Debug Kubernetes Pods
         run: kubectl get pods -o wide
       - name: Nginx Pod Logs
