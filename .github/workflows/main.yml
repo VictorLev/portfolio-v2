@@ -41,8 +41,9 @@ jobs:
         run: |
           eval $(minikube -p minikube docker-env)
           docker build -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
-          minikube image load ${{ env.DOCKER_IMAGE }}
           docker images
+          minikube image load ${{ env.DOCKER_IMAGE }}
+          
 
       # Step 6: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
