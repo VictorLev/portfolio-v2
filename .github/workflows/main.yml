@@ -23,11 +23,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Build Docker image
-      - name: Build Docker image
-        run: |
-          docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
-
       # Step 4: Install Minikube (manually)
       - name: Install Minikube
         run: |
@@ -45,6 +40,7 @@ jobs:
       - name: Load Docker image into Minikube
         run: |
           eval $(minikube -p minikube docker-env)
+          docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
           minikube image load ${{ env.DOCKER_IMAGE }}
 
       # Step 7: Apply Kubernetes manifests
