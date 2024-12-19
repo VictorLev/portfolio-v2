@@ -23,39 +23,39 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 4: Install Minikube (manually)
+      # Step 3: Install Minikube (manually)
       - name: Install Minikube
         run: |
           curl -LO https://storage.googleapis.com/minikube/releases/${{ env.MINIKUBE_VERSION }}/minikube-linux-amd64
           sudo mv minikube-linux-amd64 /usr/local/bin/minikube
           sudo chmod +x /usr/local/bin/minikube
 
-      # Step 5: Start Minikube
+      # Step 4: Start Minikube
       - name: Start Minikube
         run: |
           minikube start --wait --driver=docker --kubernetes-version=${{ env.KUBERNETES_VERSION }}
           minikube status
 
-      # Step 6: Load Docker image into Minikube
+      # Step 5: Load Docker image into Minikube
       - name: Load Docker image into Minikube
         run: |
           eval $(minikube -p minikube docker-env)
           docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
           minikube image load ${{ env.DOCKER_IMAGE }}
 
-      # Step 7: Apply Kubernetes manifests
+      # Step 6: Apply Kubernetes manifests
       - name: Apply ConfigMap and Deployment
         run: |
           kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
-          kubectl wait --for=condition=available deployment/nginx-deployment --timeout=60s
+          kubectl wait --for=condition=available deployment/nginx-deployment --timeout=120s
 
-      # Step 8: Expose the Nginx service (Minikube tunnel)
+      # Step 7: Expose the Nginx service (Minikube tunnel)
       - name: Expose Nginx Service
         run: |
           minikube tunnel &
           sleep 10
 
-      # Step 9: Test Nginx server
+      # Step 8: Test Nginx server
       - name: Run tests on Nginx
         run: |
           # Get the exposed service IP
@@ -70,7 +70,7 @@ jobs:
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ | grep -q "200" || exit 1
           echo "Nginx /fr is accessible"
 
-      # Step 10: Clean up Minikube
+      # Step 9: Clean up Minikube
       - name: Clean up Minikube
         run: |
-          minikube delete --profile=minikube-test
+          minikube delete
