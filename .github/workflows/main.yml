@@ -40,7 +40,7 @@ jobs:
       - name: Load Docker image into Minikube
         run: |
           eval $(minikube -p minikube docker-env)
-          docker buildx build --load -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
+          docker build -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
           minikube image load ${{ env.DOCKER_IMAGE }}
           docker images
 
