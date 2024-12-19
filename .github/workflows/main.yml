@@ -47,7 +47,7 @@ jobs:
       - name: Apply ConfigMap and Deployment
         run: |
           kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
-          kubectl wait --for=condition=available deployment/nginx-deployment
+          kubectl wait --for=condition=available deployment/nginx-deployment --timeout=240s
 
       # Step 7: Expose the Nginx service (Minikube tunnel)
       - name: Expose Nginx Service
