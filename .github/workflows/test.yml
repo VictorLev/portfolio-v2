@@ -37,8 +37,7 @@ jobs:
           MINIKUBE_IP=$(minikube ip)
           echo "Minikube IP: ${MINIKUBE_IP}"
 
-          kubectl describe deployment nginx-deployment
-          kubectl describe service nginx-service
+
 
           # Test /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
@@ -49,6 +48,7 @@ jobs:
           echo "Nginx /fr is accessible"
 
           # Test /grafana location
+          nslookup grafana.default.svc.cluster.local
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/ | grep -q "200" || exit 1
           echo "Nginx /grafana is accessible"
 
