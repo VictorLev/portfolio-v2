@@ -27,6 +27,7 @@ jobs:
       - name: Deploy to minikube
         run: |
           minikube image ls
+          kubectl apply -f ${{ github.workspace }}/minikube/nginx-config.yaml
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
           sleep 10
           kubectl get pods -l app=nginx
