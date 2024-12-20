@@ -39,6 +39,8 @@ jobs:
           MINIKUBE_IP=$(minikube ip)
           echo "Minikube IP: ${MINIKUBE_IP}"
 
+          kubectl run -i --tty --rm curlpod --image=curlimages/curl --restart=Never -- curl http://grafana:3000
+
           # Test /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
           echo "Nginx /en is accessible"

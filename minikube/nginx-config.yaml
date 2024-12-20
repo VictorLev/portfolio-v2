@@ -38,7 +38,7 @@ data:
         }
 
         location /grafana/ {
-            proxy_pass         http://grafana:3000/;
+            proxy_pass         http://grafana.default.svc.cluster.local:3000/;
             rewrite  ^/grafana/(.*)  /$1 break;
             proxy_set_header   Host $host;
         }
@@ -49,7 +49,7 @@ data:
           proxy_set_header Upgrade $http_upgrade;
           proxy_set_header Connection $connection_upgrade;
           proxy_set_header Host $host;
-          proxy_pass http://grafana:3000/;
+          proxy_pass http://grafana.default.svc.cluster.local:3000/;
           rewrite  ^/grafana/(.*)  /$1 break;
         }
     }
