@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: portfolio:latest
+          image: docker.io/library/portfolio:latest
           ports:
             - containerPort: 80
           imagePullPolicy: Never
