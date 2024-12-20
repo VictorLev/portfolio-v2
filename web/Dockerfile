@@ -5,7 +5,7 @@ FROM nginx:alpine
 # COPY default.conf /etc/nginx/conf.d/default.conf
 
 # Copy your website files to the Nginx document root
-COPY ./web/ /usr/share/nginx/html
+COPY . /usr/share/nginx/html
 
 # Expose port 80 for HTTP traffic
 EXPOSE 80

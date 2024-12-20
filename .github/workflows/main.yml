@@ -12,10 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Test ls
-        run: |
-          ls -R ${{ github.workspace }}
   
       - name: Start minikube
         uses: medyagh/setup-minikube@latest
