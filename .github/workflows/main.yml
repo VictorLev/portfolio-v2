@@ -27,16 +27,18 @@ jobs:
       
       - name: Deploy to minikube
         run: |
-          pwd
-          docker images
+          ls
           minikube image ls
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
-          kubectl wait --for-condition=Ready pod -l app=nginx --timeout=60s
+          kubectl wait --for=condition=Ready pod -l app=nginx --timeout=60s
 
       - name: Run tests on Nginx
         run: |
           NODE_PORT=$(kubectl get svc nginx-service -o=jsonpath='{.spec.ports[0].nodePort}')
+          echo "NodePort: ${NODE_PORT}"
+          
           MINIKUBE_IP=$(minikube ip)
+          echo "Minikube IP: ${MINIKUBE_IP}"
 
           # Test /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
