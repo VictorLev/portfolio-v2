@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-nginx:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -23,11 +23,11 @@ jobs:
 
       - name: Build image
         run: |
-          minikube image build -t portfolio:latest ${GITHUB_WORKSPACE}/web/   
+          minikube image build -t portfolio:latest ${{ github.workspace }}/web/   
       
       - name: Deploy to minikube
         run:
-          kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
+          kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
           kubectl wait --for=condition=ready pod -l app=nginx --timeout=60s
 
       - name: Run tests on Nginx
