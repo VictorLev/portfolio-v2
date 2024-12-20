@@ -27,8 +27,11 @@ jobs:
       
       - name: Deploy to minikube
         run:
+          pwd
+          docker images
+          minikube image ls
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
-          kubectl wait --for=condition=ready pod -l app=nginx --timeout=60s
+          kubectl wait --for-condition=Ready pod -l app=nginx --timeout=60s
 
       - name: Run tests on Nginx
         run: |
