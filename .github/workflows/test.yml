@@ -48,7 +48,7 @@ jobs:
           echo "Nginx /fr is accessible"
 
           # Test /grafana location
-          nslookup grafana.default.svc.cluster.local
+          minikube ssh -- "nslookup grafana.default.svc.cluster.local"
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/ | grep -q "200" || exit 1
           echo "Nginx /grafana is accessible"
 
