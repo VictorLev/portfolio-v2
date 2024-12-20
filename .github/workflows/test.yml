@@ -25,9 +25,9 @@ jobs:
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-config.yaml
           kubectl apply -f ${{ github.workspace }}/minikube/monitoring-deployment.yaml
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
-          sleep 10
-          kubectl logs -l app=nginx
+
           kubectl wait --for=condition=Ready pod -l app=nginx --timeout=60s
+          kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=60s
 
       - name: Run tests on Nginx
         run: |
@@ -37,8 +37,6 @@ jobs:
           MINIKUBE_IP=$(minikube ip)
           echo "Minikube IP: ${MINIKUBE_IP}"
 
-
-
           # Test /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
           echo "Nginx /en is accessible"
@@ -46,8 +44,8 @@ jobs:
           # Test /fr location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ | grep -q "200" || exit 1
           echo "Nginx /fr is accessible"
-
-          minikube ssh -- "nslookup grafana"
+          
+          # Test /grafana location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/ | grep -q "200" || exit 1
           echo "Nginx /grafana is accessible"
 
