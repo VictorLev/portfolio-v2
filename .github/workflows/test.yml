@@ -48,6 +48,17 @@ jobs:
           echo "Nginx /fr is accessible"
 
           # Test /grafana location
+          echo "###################Check Minikube DNS Resolution###################"
+          kubectl get pods -n kube-system -l k8s-app=coredns
+          echo "###################Verify the Grafana Servicen###################"
+          kubectl get svc -n default grafana
+          kubectl get endpoints -n default grafana
+          echo "###################Test DNS Resolution from a Pod##################"
+          kubectl run -i --tty --rm debug --image=busybox --serviceaccount default --restart=Never -- nslookup grafana.default.svc.cluster.local
+          echo "###################Check the CoreDNS ConfigMap###################"
+          kubectl get configmap coredns -n kube-system -o yaml
+
+
           minikube ssh -- "nslookup grafana.default.svc.cluster.local"
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/ | grep -q "200" || exit 1
           echo "Nginx /grafana is accessible"
