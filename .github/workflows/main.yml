@@ -5,75 +5,44 @@ on:
     paths:
       - "version" # Trigger the workflow when the "version" file changes
 
-env:
-  MINIKUBE_VERSION: "v1.31.2"
-  KUBERNETES_VERSION: "v1.27.4"
-  DOCKER_IMAGE: "portfolio:latest"
-
 jobs:
   test-nginx:
     runs-on: ubuntu-20.04
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          repository: medyagh/local-dev-example-with-minikube
 
-      # Step 2: Set up Docker
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Start minikube
+        uses: medyagh/setup-minikube@latest
 
-      # Step 3: Install Minikube (manually)
-      - name: Install Minikube
+      - name: Try the cluster!
+        run: kubectl get pods -A
+
+      - name: Build image
         run: |
-          curl -LO https://storage.googleapis.com/minikube/releases/${{ env.MINIKUBE_VERSION }}/minikube-linux-amd64
-          sudo mv minikube-linux-amd64 /usr/local/bin/minikube
-          sudo chmod +x /usr/local/bin/minikube
-
-      # Step 4: Start Minikube
-      - name: Start Minikube
-        run: |
-          minikube start --wait --driver=docker --kubernetes-version=${{ env.KUBERNETES_VERSION }}
-          minikube status
-
-      # Step 5: Load Docker image into Minikube
-      - name: Load Docker image into Minikube
-        run: |
-          eval $(minikube -p minikube docker-env)
-          docker build -t ${{ env.DOCKER_IMAGE }} ${GITHUB_WORKSPACE}/web/
-          docker images
-          minikube image load portfolio
-          
-
-      # Step 6: Apply Kubernetes manifests
-      - name: Apply ConfigMap and Deployment
-        run: |
+          minikube image build -t portfolio:latest ${GITHUB_WORKSPACE}/web/   
+      
+      - name: Deploy to minikube
+        run:
           kubectl apply -f ${GITHUB_WORKSPACE}/minikube/nginx-deployment.yaml
-          kubectl wait --for=condition=available --timeout=120s deployment/nginx-deployment
-          sleep 30
-        
-      # Step 7: Expose the Nginx service (Minikube tunnel)
-      - name: Expose Nginx Service
-        run: |
-          minikube tunnel &
-          sleep 10
+          kubectl wait --for=condition=ready pod -l app=nginx --timeout=60s
 
-      # Step 8: Test Nginx server
       - name: Run tests on Nginx
         run: |
-          # Get the exposed service IP
           NODE_PORT=$(kubectl get svc nginx-service -o=jsonpath='{.spec.ports[0].nodePort}')
           MINIKUBE_IP=$(minikube ip)
 
-          # Test the /en location
+          # Test /en location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
           echo "Nginx /en is accessible"
 
-          # Test the /fr location
+          # Test /fr location
           curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ | grep -q "200" || exit 1
           echo "Nginx /fr is accessible"
 
-      # Step 9: Clean up Minikube
       - name: Clean up Minikube
         run: |
           minikube delete
