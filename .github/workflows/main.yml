@@ -31,7 +31,7 @@ jobs:
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
           sleep 10
           kubectl get pods -l app=nginx
-          kubectl describe pods -l app=nginx
+          kubectl logs -l app=nginx
           kubectl wait --for=condition=Ready pod -l app=nginx --timeout=60s
 
       - name: Run tests on Nginx
