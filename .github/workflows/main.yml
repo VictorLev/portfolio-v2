@@ -15,6 +15,10 @@ jobs:
         with:
           repository: medyagh/local-dev-example-with-minikube
 
+      - name: Test ls
+        run: |
+          ls -R ${{ github.workspace }}
+  
       - name: Start minikube
         uses: medyagh/setup-minikube@latest
 
@@ -23,11 +27,11 @@ jobs:
 
       - name: Build image
         run: |
-          minikube image build -t portfolio:latest ${{ github.workspace }}/web/   
+          minikube image build -t portfolio:latest ${{ github.workspace }}/web/  
+          minikube image ls | grep portfolio:latest 
       
       - name: Deploy to minikube
         run: |
-          ls
           minikube image ls
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
           kubectl wait --for=condition=Ready pod -l app=nginx --timeout=60s
