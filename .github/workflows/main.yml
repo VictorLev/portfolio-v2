@@ -16,9 +16,6 @@ jobs:
       - name: Start minikube
         uses: medyagh/setup-minikube@latest
 
-      - name: Try the cluster!
-        run: kubectl get pods -A
-
       - name: Build image
         run: |
           minikube image build -t portfolio:latest ${{ github.workspace }}/web/  
@@ -27,6 +24,8 @@ jobs:
         run: |
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-config.yaml
           kubectl apply -f ${{ github.workspace }}/minikube/nginx-deployment.yaml
+          sleep 10
+          kubectl logs -l app=nginx
           kubectl wait --for=condition=Ready pod -l app=nginx --timeout=60s
 
       - name: Run tests on Nginx
