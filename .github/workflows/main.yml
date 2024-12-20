@@ -26,7 +26,7 @@ jobs:
           minikube image build -t portfolio:latest ${{ github.workspace }}/web/   
       
       - name: Deploy to minikube
-        run:
+        run: |
           pwd
           docker images
           minikube image ls
