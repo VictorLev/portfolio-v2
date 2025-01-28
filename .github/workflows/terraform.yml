@@ -25,7 +25,7 @@ jobs:
             DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
         run: |
             terraform apply -auto-approve -var "digitalocean_token=${{ secrets.DO_TOKEN }}" \
-            working-directory: terraform/
+        working-directory: terraform/
 
       - name: Get Droplet IP
         id: droplet_ip

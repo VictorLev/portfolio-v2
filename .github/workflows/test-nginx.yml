@@ -1,4 +1,4 @@
-name: Test Nginx Server with Minikube
+name: Test Nginx Server
 
 on:
   push:
