@@ -3,10 +3,10 @@
 
 # Terrafrom apply commands
 export $(cat .env | xargs) # Refresh variables
-terraform apply -auto-approve -var "digitalocean_token=$DO_TOKEN"
+terraform apply -auto-approve -var-file="local.tfvars"
 
 
-terraform apply -auto-approve -destroy -var "digitalocean_token=$DO_TOKEN"
+terraform apply -auto-approve -destroy -var-file="local.tfvars"
 
 this will help you
 # https://developer.hashicorp.com/terraform/tutorials/applications/digitalocean-provider
