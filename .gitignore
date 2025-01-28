@@ -1,1 +1,7 @@
 docker_commands
+
+.terraform
+.terraform.d
+.terraform.lock.hcl
+
+.env

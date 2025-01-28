@@ -14,12 +14,10 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_droplet" "nginx_droplet" {
-  name   = "nginx-server"
-  region = "nyc3" # Closest to Montreal
-  size   = "s-1vcpu-1gb" # Smallest droplet
-  image  = "ubuntu-22-04-x64"
-
-  tags = ["nginx", "minikube"]
+  image   = "ubuntu-20-04-x64"
+  name    = "web-1"
+  region  = "nyc3"
+  size    = "s-1vcpu-1gb"
 }
 
 resource "digitalocean_firewall" "nginx_firewall" {
