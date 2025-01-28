@@ -1,0 +1,75 @@
+name: Deploy Nginx on DigitalOcean with Minikube
+
+on:
+  push:
+    paths:
+      - "web/**"
+      - "minikube/**"
+      - "terraform/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: terraform/
+
+      - name: Apply Terraform
+        env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
+        run: |
+          terraform apply -auto-approve -var "digitalocean_token=${{ secrets.DO_TOKEN }}"
+        working-directory: terraform/
+
+      - name: Get Droplet IP
+        id: droplet_ip
+        run: |
+          echo "droplet_ip=$(terraform output -raw nginx_server_ip)" >> $GITHUB_ENV
+        working-directory: terraform/
+
+      - name: Deploy Minikube and Application
+        env:
+          SERVER_IP: ${{ env.droplet_ip }}
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
+          set -e
+          # Start Minikube
+          minikube start --driver=none
+
+          # Copy application files to the server
+          mkdir -p /deploy
+          EOF
+
+          # Copy code to droplet
+          scp -r ./web root@${SERVER_IP}:/deploy/web
+          scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
+
+          ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
+          # Build Docker image
+          docker build -t portfolio:latest /deploy/web
+
+          # Load Docker image into Minikube
+          minikube image load portfolio:latest
+
+          # Apply Minikube YAML configurations
+          kubectl apply -f /deploy/minikube/prometheus-pvc.yaml
+          kubectl apply -f /deploy/minikube/nginx-config.yaml
+          kubectl apply -f /deploy/minikube/monitoring-deployment.yaml
+          kubectl apply -f /deploy/minikube/nginx-deployment.yaml
+
+          # Wait for Nginx and Monitoring Pods
+          kubectl wait --for=condition=Ready pod -l app=nginx --timeout=120s
+          kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=120s
+
+          echo "Application successfully deployed!"
+          EOF
