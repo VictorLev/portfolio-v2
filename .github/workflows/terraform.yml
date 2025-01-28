@@ -1,4 +1,4 @@
-name: Deploy Nginx on DigitalOcean with Minikube
+name: Deploy DigitalOcean VM
 
 on:
   workflow_dispatch:
