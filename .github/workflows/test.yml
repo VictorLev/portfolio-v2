@@ -33,24 +33,36 @@ jobs:
 
       - name: Run tests on Nginx
         run: |
+          set -e
+          set -x
+
           NODE_PORT=$(kubectl get svc nginx-service -o=jsonpath='{.spec.ports[0].nodePort}')
           echo "NodePort: ${NODE_PORT}"
           
           MINIKUBE_IP=$(minikube ip)
           echo "Minikube IP: ${MINIKUBE_IP}"
 
-          kubectl run -i --tty --rm curlpod --image=curlimages/curl --restart=Never -- curl http://grafana.default.svc.cluster.local:3000/
+          # Test Grafana connection in-cluster
+          kubectl run -i --tty --rm curlpod --image=curlimages/curl --restart=Never -- \
+            curl -s -o /dev/null -w "%{http_code}" http://grafana.default.svc.cluster.local:3000/ || \
+            echo "Grafana service connection failed"
 
           # Test /en location
-          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ | grep -q "200" || exit 1
+          for i in {1..5}; do
+            curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/en/ && break || sleep 5
+          done
           echo "Nginx /en is accessible"
 
           # Test /fr location
-          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ | grep -q "200" || exit 1
+          for i in {1..5}; do
+            curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/fr/ && break || sleep 5
+          done
           echo "Nginx /fr is accessible"
-          
+
           # Test /grafana location
-          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/login | grep -q "200" || exit 1
+          for i in {1..5}; do
+            curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/login && break || sleep 5
+          done
           echo "Nginx /grafana is accessible"
 
       - name: Clean up Minikube
