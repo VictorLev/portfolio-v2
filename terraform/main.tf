@@ -13,7 +13,6 @@ provider "digitalocean" {
   token = var.digitalocean_token
 }
 
-
 # Create a new SSH key
 resource "digitalocean_ssh_key" "intershop-ssh-key" {
   name       = "Ssh key used from intershop pc"
