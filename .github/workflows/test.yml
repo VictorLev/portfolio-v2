@@ -3,7 +3,7 @@ name: Test Nginx Server with Minikube
 on:
   push:
     paths:
-      - "version" # Trigger the workflow when the "version" file changes
+      - "version.md" # Trigger the workflow when the "version" file changes
 
 jobs:
   test-nginx:
@@ -50,7 +50,7 @@ jobs:
           echo "Nginx /fr is accessible"
           
           # Test /grafana location
-          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/ | grep -q "200" || exit 1
+          curl -s -o /dev/null -w "%{http_code}" http://${MINIKUBE_IP}:${NODE_PORT}/grafana/login | grep -q "200" || exit 1
           echo "Nginx /grafana is accessible"
 
       - name: Clean up Minikube
