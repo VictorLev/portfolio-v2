@@ -1,0 +1,34 @@
+name: Deploy Nginx on DigitalOcean with Minikube
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+            terraform_version: 1.5.0
+
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: terraform/
+
+      - name: Apply Terraform
+        env:
+            DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
+        run: |
+            terraform apply -auto-approve -var "digitalocean_token=${{ secrets.DO_TOKEN }}" \
+            working-directory: terraform/
+
+      - name: Get Droplet IP
+        id: droplet_ip
+        run: |
+          echo "droplet_ip=$(terraform output -raw nginx_server_ip)" >> $GITHUB_ENV
+        working-directory: terraform/
