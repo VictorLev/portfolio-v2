@@ -22,7 +22,9 @@ jobs:
             ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -C "github-actions@your-repo"
             echo "SSH key generated"
             # Set up environment variables
-            echo "PRIVATE_KEY=$(cat ~/.ssh/id_rsa)" >> $GITHUB_ENV
+            echo "PRIVATE_KEY<<EOF" >> $GITHUB_ENV
+            cat ~/.ssh/id_rsa >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
             echo "PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)" >> $GITHUB_ENV
 
       - name: Setup Terraform
