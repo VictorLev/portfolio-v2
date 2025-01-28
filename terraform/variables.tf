@@ -1,4 +1,12 @@
 variable "digitalocean_token" {}
-variable "ssh_public_key_path" {
-  default = "~/.ssh/id_rsa.pub"
+
+variable "ssh_private_key" {
+  description = "The private SSH key"
+  type        = string
 }
+
+variable "ssh_public_key" {
+  description = "The public SSH key"
+  type        = string
+}
+

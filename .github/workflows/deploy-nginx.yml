@@ -15,10 +15,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Generate SSH Key
+        id: ssh-key
+        run: |
+            mkdir -p ~/.ssh
+            ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -C "github-actions@your-repo"
+            echo "SSH key generated"
+            # Set up environment variables
+            echo "PRIVATE_KEY=$(cat ~/.ssh/id_rsa)" >> $GITHUB_ENV
+            echo "PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)" >> $GITHUB_ENV
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.0
+            terraform_version: 1.5.0
 
       - name: Initialize Terraform
         run: terraform init
@@ -26,10 +36,14 @@ jobs:
 
       - name: Apply Terraform
         env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
+            DIGITALOCEAN_TOKEN: ${{ secrets.DO_TOKEN }}
+            SSH_PRIVATE_KEY: ${{ env.PRIVATE_KEY }}
+            SSH_PUBLIC_KEY: ${{ env.PUBLIC_KEY }}
         run: |
-          terraform apply -auto-approve -var "digitalocean_token=${{ secrets.DO_TOKEN }}"
-        working-directory: terraform/
+            terraform apply -auto-approve -var "digitalocean_token=${{ secrets.DO_TOKEN }}" \
+            -var "ssh_private_key=${{ env.SSH_PRIVATE_KEY }}" \
+            -var "ssh_public_key=${{ env.SSH_PUBLIC_KEY }}"
+            working-directory: terraform/
 
       - name: Get Droplet IP
         id: droplet_ip

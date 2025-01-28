@@ -14,8 +14,8 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_ssh_key" "default" {
-  name       = "default-key"
-  public_key = file(var.ssh_public_key_path)
+  name       = "my-key"
+  public_key = var.ssh_public_key
 }
 
 resource "digitalocean_droplet" "nginx_droplet" {
