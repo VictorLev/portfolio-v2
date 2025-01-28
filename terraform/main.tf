@@ -13,11 +13,19 @@ provider "digitalocean" {
   token = var.digitalocean_token
 }
 
+
+# Create a new SSH key
+resource "digitalocean_ssh_key" "intershop-ssh-key" {
+  name       = "Ssh key used from intershop pc"
+  public_key = file("/home/victor/.ssh/id_rsa.pub")
+}
+
 resource "digitalocean_droplet" "nginx_droplet" {
   image   = "ubuntu-20-04-x64"
   name    = "web-1"
   region  = "nyc3"
   size    = "s-1vcpu-1gb"
+  ssh_keys = [digitalocean_ssh_key.intershop-ssh-key.fingerprint]
 }
 
 resource "digitalocean_firewall" "nginx_firewall" {

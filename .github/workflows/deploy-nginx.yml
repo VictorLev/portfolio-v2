@@ -13,10 +13,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
 
       - name: Get Droplet IP
         id: droplet_ip
         run: |
+          terraform refresh
           echo "droplet_ip=$(terraform output -raw nginx_server_ip)" >> $GITHUB_ENV
         working-directory: terraform/
 
