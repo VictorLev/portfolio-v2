@@ -16,15 +16,16 @@ jobs:
       
       - name: Install doctl
         run: |
-          curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m) > doctl
-          chmod +x doctl
-          sudo mv doctl /usr/local/bin/ 
+          cd ~
+          wget https://github.com/digitalocean/doctl/releases/download/v1.120.1/doctl-1.120.1-linux-amd64.tar.gz
+          tar xf ~/doctl-1.120.1-linux-amd64.tar.gz
+          sudo mv ~/doctl /usr/local/bin
           doctl version  
+
       - name: Authenticate with DigitalOcean
         env:
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
         run: |
-          export PATH=$PATH:/usr/local/bin
           doctl auth init --access-token $DO_TOKEN
           doctl account get
 
