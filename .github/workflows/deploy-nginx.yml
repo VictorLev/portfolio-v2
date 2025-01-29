@@ -1,4 +1,4 @@
-name: Deploy Nginx on DigitalOcean with Minikube
+name: Deploy WebApp
 
 on:
   workflow_dispatch:
@@ -18,11 +18,15 @@ jobs:
         run: |
           curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m) > doctl
           chmod +x doctl
-          sudo mv doctl /usr/local/bin/
+          sudo mv doctl /usr/local/bin/ 
+          doctl version  
       - name: Authenticate with DigitalOcean
         env:
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
-        run: doctl auth init --access-token $DO_TOKEN
+        run: |
+          export PATH=$PATH:/usr/local/bin
+          doctl auth init --access-token $DO_TOKEN
+          doctl account get
 
       - name: Get Droplet IP by Name
         id: get_ip
