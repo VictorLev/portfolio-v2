@@ -45,8 +45,8 @@ jobs:
           chmod 600 private_key.pem
           
           # Copy code to droplet
-          scp -r -i private_key.pem ./web root@${SERVER_IP}:/deploy/web
-          scp -r -i private_key.pem ./minikube root@${SERVER_IP}:/deploy/minikube
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./web root@${SERVER_IP}:/deploy/web
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./minikube root@${SERVER_IP}:/deploy/minikube
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
             set -e
