@@ -40,34 +40,34 @@ jobs:
           SERVER_IP: ${{ env.DROPLET_IP }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # Copy code to droplet
-          scp -r ./web root@${SERVER_IP}:/deploy/web
-          scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
-          
           # Store the SSH key in a temporary file
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          
+          # Copy code to droplet
+          scp -r -i private_key.pem ./web root@${SERVER_IP}:/deploy/web
+          scp -r -i private_key.pem ./minikube root@${SERVER_IP}:/deploy/minikube
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
             set -e
             # Start Minikube
             minikube start --driver=none
 
-      #     # Build Docker image
-      #     docker build -t portfolio:latest /deploy/web
+            # Build Docker image
+            docker build -t portfolio:latest /deploy/web
 
-      #     # Load Docker image into Minikube
-      #     minikube image load portfolio:latest
+            # Load Docker image into Minikube
+            minikube image load portfolio:latest
 
-      #     # Apply Minikube YAML configurations
-      #     kubectl apply -f /deploy/minikube/prometheus-pvc.yaml
-      #     kubectl apply -f /deploy/minikube/nginx-config.yaml
-      #     kubectl apply -f /deploy/minikube/monitoring-deployment.yaml
-      #     kubectl apply -f /deploy/minikube/nginx-deployment.yaml
+            # Apply Minikube YAML configurations
+            kubectl apply -f /deploy/minikube/prometheus-pvc.yaml
+            kubectl apply -f /deploy/minikube/nginx-config.yaml
+            kubectl apply -f /deploy/minikube/monitoring-deployment.yaml
+            kubectl apply -f /deploy/minikube/nginx-deployment.yaml
 
-      #     # Wait for Nginx and Monitoring Pods
-      #     kubectl wait --for=condition=Ready pod -l app=nginx --timeout=120s
-      #     kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=120s
+            # Wait for Nginx and Monitoring Pods
+            kubectl wait --for=condition=Ready pod -l app=nginx --timeout=120s
+            kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=120s
 
-      #     echo "Application successfully deployed!"
-      #     EOF
+            echo "Application successfully deployed!"
+          EOF
