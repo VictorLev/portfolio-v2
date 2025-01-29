@@ -27,7 +27,6 @@ jobs:
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
         run: |
           doctl auth init --access-token $DO_TOKEN
-          doctl account get
 
       - name: Get Droplet IP by Name
         id: get_ip
@@ -36,24 +35,24 @@ jobs:
           echo "Droplet IP: $DROPLET_IP"
           echo "DROPLET_IP=$DROPLET_IP" >> $GITHUB_ENV
 
-      # - name: Deploy Minikube and Application
-      #   env:
-      #     SERVER_IP: ${{ env.DROPLET_IP }}
-      #   run: |
-      #     ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
-      #     set -e
-      #     # Start Minikube
-      #     minikube start --driver=none
+      - name: Deploy Minikube and Application
+        env:
+          SERVER_IP: ${{ env.DROPLET_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Copy code to droplet
+          scp -r ./web root@${SERVER_IP}:/deploy/web
+          scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
+          
+          # Store the SSH key in a temporary file
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
 
-      #     # Copy application files to the server
-      #     mkdir -p /deploy
-      #     EOF
+          ssh -i private_key.pem -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
+            set -e
+            # Start Minikube
+            minikube start --driver=none
 
-      #     # Copy code to droplet
-      #     scp -r ./web root@${SERVER_IP}:/deploy/web
-      #     scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
-
-      #     ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
       #     # Build Docker image
       #     docker build -t portfolio:latest /deploy/web
 

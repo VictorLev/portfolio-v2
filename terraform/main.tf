@@ -16,15 +16,37 @@ provider "digitalocean" {
 # Create a new SSH key
 resource "digitalocean_ssh_key" "intershop-ssh-key" {
   name       = "Ssh key used from intershop pc"
-  public_key = file("/home/victor/.ssh/id_rsa.pub")
+  public_key = file("~/.ssh/id_rsa.pub")
 }
 
 resource "digitalocean_droplet" "nginx_droplet" {
-  image   = "ubuntu-20-04-x64"
+  image   = "docker-20-04" # DO Ubuntu 20.04 image with Docker pre-installed
   name    = "web-1"
   region  = "nyc3"
   size    = "s-1vcpu-1gb"
   ssh_keys = [digitalocean_ssh_key.intershop-ssh-key.fingerprint]
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file("~/.ssh/id_rsa")  # Update with your private key path
+      host        = self.ipv4_address
+    }
+
+    inline = [
+      # Install Minikube
+      "curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64",
+      "chmod +x minikube",
+      "mv minikube /usr/local/bin/",
+      
+      # Add user to docker group
+      "usermod -aG docker root",
+
+      "mkdir -p /deploy"
+    ]
+  }
+
 }
 
 resource "digitalocean_firewall" "nginx_firewall" {
