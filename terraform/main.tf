@@ -41,13 +41,23 @@ resource "digitalocean_droplet" "nginx_droplet" {
       "curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64",
       "sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64",
       "mv minikube /usr/local/bin/",
-      "minikube start --driver=docker --force --memory=1963mb",
+      "minikube start --driver=docker --network=192.168.49.0/24 --force --memory=1963mb",
 
       # Install kubectl
       "snap install kubectl --classic",
       "kubectl config use-context minikube",
 
+      # Directory for web app
       "mkdir -p /deploy",
+
+      # Networking setup
+      "sudo ufw allow 30007/tcp",
+      "sudo ufw reload",
+      "MINIKUBE_IP=$(minikube ip)",
+      "sudo sysctl -w net.ipv4.ip_forward=1",
+      "sudo iptables -t nat -A POSTROUTING -s 192.168.49.0/24 ! -o cni0 -j MASQUERADE",
+      "sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination $MINIKUBE_IP:30007",
+      "sudo iptables -A FORWARD -p tcp -d $MINIKUBE_IP --dport 30007 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT",
     ]    
   }
 }
@@ -66,6 +76,12 @@ resource "digitalocean_firewall" "nginx_firewall" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "30007"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 

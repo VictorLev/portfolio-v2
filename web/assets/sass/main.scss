@@ -741,7 +741,6 @@
 /* Wrappers */
 
 	.wrapper {
-		background-image: url('images/bg.png');
 		box-shadow: inset 0px 1px 0px 0px rgba(0, 0, 0, 0.05), inset 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
 		padding: 8em 0 8em 0;
 		text-align: center;
@@ -752,16 +751,19 @@
 		}
 
 		&.style2 {
+			background-image: none;
 			background-color: #fafafa;
 			text-shadow: 1px 1px 0px #fff;
 		}
 
 		&.style3 {
+			background-image: none;
 			background-color: #f4f4f4;
 			text-shadow: 1px 1px 0px #fff;
 		}
 
 		&.style5 {
+			background-image: none;
 			background-color: #303030;
 			color: #999;
 			text-shadow: -1px -1px 0px #181818;
