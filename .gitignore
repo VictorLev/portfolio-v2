@@ -3,6 +3,11 @@ docker_commands
 .terraform
 .terraform.d
 .terraform.lock.hcl
+.terraformrc
+terraform.tfstate
+terraform.tfstate.backup
+
+
 *.tfstate
 *.tfstate.backup
 

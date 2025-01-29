@@ -14,51 +14,56 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Get Droplet IP
-        id: droplet_ip
+      - name: Install doctl
         run: |
-          terraform refresh
-          echo "droplet_ip=$(terraform output -raw nginx_server_ip)" >> $GITHUB_ENV
-        working-directory: terraform/
-
-      - name: Deploy Minikube and Application
+          curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m) > doctl
+          chmod +x doctl
+          sudo mv doctl /usr/local/bin/
+      - name: Authenticate with DigitalOcean
         env:
-          SERVER_IP: ${{ env.droplet_ip }}
+          DO_TOKEN: ${{ secrets.DO_TOKEN }}
+        run: doctl auth init --access-token $DO_TOKEN
+
+      - name: Get Droplet IP by Name
+        id: get_ip
         run: |
-          ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
-          set -e
-          # Start Minikube
-          minikube start --driver=none
+          DROPLET_IP=$(doctl compute droplet list --format Name,PublicIPv4 | grep 'web-1' | awk '{print $2}')
+          echo "Droplet IP: $DROPLET_IP"
+          echo "DROPLET_IP=$DROPLET_IP" >> $GITHUB_ENV
 
-          # Copy application files to the server
-          mkdir -p /deploy
-          EOF
+      # - name: Deploy Minikube and Application
+      #   env:
+      #     SERVER_IP: ${{ env.DROPLET_IP }}
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
+      #     set -e
+      #     # Start Minikube
+      #     minikube start --driver=none
 
-          # Copy code to droplet
-          scp -r ./web root@${SERVER_IP}:/deploy/web
-          scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
+      #     # Copy application files to the server
+      #     mkdir -p /deploy
+      #     EOF
 
-          ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
-          # Build Docker image
-          docker build -t portfolio:latest /deploy/web
+      #     # Copy code to droplet
+      #     scp -r ./web root@${SERVER_IP}:/deploy/web
+      #     scp -r ./minikube root@${SERVER_IP}:/deploy/minikube
 
-          # Load Docker image into Minikube
-          minikube image load portfolio:latest
+      #     ssh -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
+      #     # Build Docker image
+      #     docker build -t portfolio:latest /deploy/web
 
-          # Apply Minikube YAML configurations
-          kubectl apply -f /deploy/minikube/prometheus-pvc.yaml
-          kubectl apply -f /deploy/minikube/nginx-config.yaml
-          kubectl apply -f /deploy/minikube/monitoring-deployment.yaml
-          kubectl apply -f /deploy/minikube/nginx-deployment.yaml
+      #     # Load Docker image into Minikube
+      #     minikube image load portfolio:latest
 
-          # Wait for Nginx and Monitoring Pods
-          kubectl wait --for=condition=Ready pod -l app=nginx --timeout=120s
-          kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=120s
+      #     # Apply Minikube YAML configurations
+      #     kubectl apply -f /deploy/minikube/prometheus-pvc.yaml
+      #     kubectl apply -f /deploy/minikube/nginx-config.yaml
+      #     kubectl apply -f /deploy/minikube/monitoring-deployment.yaml
+      #     kubectl apply -f /deploy/minikube/nginx-deployment.yaml
 
-          echo "Application successfully deployed!"
-          EOF
+      #     # Wait for Nginx and Monitoring Pods
+      #     kubectl wait --for=condition=Ready pod -l app=nginx --timeout=120s
+      #     kubectl wait --for=condition=Ready pod -l app=monitoring --timeout=120s
+
+      #     echo "Application successfully deployed!"
+      #     EOF
