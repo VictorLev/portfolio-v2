@@ -2,7 +2,7 @@ terraform {
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
-      version = "~> 2.0"
+      version = ">= 2.0.0"
     }
   }
 
@@ -13,18 +13,17 @@ provider "digitalocean" {
   token = var.digitalocean_token
 }
 
-# Create a new SSH key
-resource "digitalocean_ssh_key" "intershop-ssh-key" {
+# Get ssh key from DigitalOcean
+data "digitalocean_ssh_key" "intershop-ssh-key" {
   name       = "Ssh key used from intershop pc"
-  public_key = file("~/.ssh/id_rsa.pub")
 }
 
 resource "digitalocean_droplet" "nginx_droplet" {
   image   = "docker-20-04" # DO Ubuntu 20.04 image with Docker pre-installed
   name    = "web-1"
   region  = "nyc3"
-  size    = "s-1vcpu-1gb"
-  ssh_keys = [digitalocean_ssh_key.intershop-ssh-key.fingerprint]
+  size    = "s-2vcpu-2gb"
+  ssh_keys = [data.digitalocean_ssh_key.intershop-ssh-key.fingerprint]
 
   provisioner "remote-exec" {
     connection {
@@ -44,9 +43,8 @@ resource "digitalocean_droplet" "nginx_droplet" {
       "usermod -aG docker root",
 
       "mkdir -p /deploy"
-    ]
+    ]    
   }
-
 }
 
 resource "digitalocean_firewall" "nginx_firewall" {
