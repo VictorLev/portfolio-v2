@@ -30,21 +30,24 @@ resource "digitalocean_droplet" "nginx_droplet" {
       type        = "ssh"
       user        = "root"
       private_key = file("~/.ssh/id_rsa")  # Update with your private key path
-      host        = self.ipv4_address
+      host        = digitalocean_droplet.nginx_droplet.ipv4_address
     }
 
     inline = [
-      # Install Minikube
-      "curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64",
-      "chmod +x minikube",
-      "mv minikube /usr/local/bin/",
+      # Installing dependencies
+      "sudo apt install -y curl apt-transport-https",
       
-      # Add user to docker group
-      "usermod -aG docker root",
+      # Install Minikube
+      "curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64",
+      "sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64",
+      "mv minikube /usr/local/bin/",
+      "minikube start --driver=docker --force --memory=1963mb",
+
+      # Install kubectl
+      "snap install kubectl --classic",
+      "kubectl config use-context minikube",
 
       "mkdir -p /deploy",
-      "sudo apt update",
-      "sudo apt install conntrack -y",
     ]    
   }
 }
