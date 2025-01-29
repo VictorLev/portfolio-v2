@@ -38,7 +38,7 @@ jobs:
       - name: Deploy Minikube and Application
         env:
           SERVER_IP: ${{ env.DROPLET_IP }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.INTERSHOP_PC_PRIVATEKEY }}
         run: |
           # Store the SSH key in a temporary file
           echo "$SSH_PRIVATE_KEY" > private_key.pem
