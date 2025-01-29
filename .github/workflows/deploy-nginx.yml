@@ -51,7 +51,7 @@ jobs:
           ssh -i private_key.pem -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
             set -e
             # Start Minikube
-            minikube start --driver=none
+            minikube start --driver=none --force
 
             # Build Docker image
             docker build -t portfolio:latest /deploy/web
