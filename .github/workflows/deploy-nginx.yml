@@ -50,6 +50,9 @@ jobs:
 
           ssh -i private_key.pem -o StrictHostKeyChecking=no root@${SERVER_IP} <<EOF
             set -e
+            
+            sudo apt update
+            
             # Start Minikube
             minikube start --driver=none --force
 

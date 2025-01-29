@@ -42,7 +42,9 @@ resource "digitalocean_droplet" "nginx_droplet" {
       # Add user to docker group
       "usermod -aG docker root",
 
-      "mkdir -p /deploy"
+      "mkdir -p /deploy",
+      "sudo apt update",
+      "sudo apt install conntrack -y",
     ]    
   }
 }
